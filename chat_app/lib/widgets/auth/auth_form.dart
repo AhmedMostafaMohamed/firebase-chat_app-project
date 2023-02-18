@@ -3,7 +3,10 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({super.key});
+  final void Function(String email, String username, String password,
+      bool isLogin, BuildContext ctx) submitFn;
+  AuthForm(this.submitFn, this.isLoading);
+  final bool isLoading;
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -20,9 +23,8 @@ class _AuthFormState extends State<AuthForm> {
     FocusScope.of(context).unfocus();
     if (isValid) {
       _formkey.currentState!.save();
-      print(_userEmail);
-      print(_userName);
-      print(_userPassword);
+      widget.submitFn(_userEmail.trim(), _userName.trim(), _userPassword.trim(),
+          _islogin, context);
 
       //auth request here!
     }
@@ -81,18 +83,21 @@ class _AuthFormState extends State<AuthForm> {
                 SizedBox(
                   height: 12,
                 ),
-                ElevatedButton(
-                    onPressed: _trysubmit,
-                    child: Text(_islogin ? 'Login' : 'Signup')),
-                TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _islogin = !_islogin;
-                      });
-                    },
-                    child: Text(_islogin
-                        ? 'Create new account'
-                        : 'I already have an account'))
+                if (widget.isLoading) CircularProgressIndicator(),
+                if (!widget.isLoading)
+                  ElevatedButton(
+                      onPressed: _trysubmit,
+                      child: Text(_islogin ? 'Login' : 'Signup')),
+                if (!widget.isLoading)
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _islogin = !_islogin;
+                        });
+                      },
+                      child: Text(_islogin
+                          ? 'Create new account'
+                          : 'I already have an account'))
               ]),
             ),
           ),
